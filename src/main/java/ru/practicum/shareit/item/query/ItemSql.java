@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.query;
+/*package ru.practicum.shareit.item.query;
 
 public class ItemSql {
 
@@ -19,3 +19,4 @@ public class ItemSql {
     public static final String SQL_ITEM_SEARCH = "SELECT * FROM item WHERE " +
             "(LOWER(name) LIKE :search OR LOWER(description) LIKE :search) AND available = true";
 }
+*/

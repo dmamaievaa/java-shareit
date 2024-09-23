@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user.repository;
+/*package ru.practicum.shareit.user.repository;
 
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -107,3 +107,4 @@ public class UserDbStorage implements UserStorage {
                 .build();
     }
 }
+*/
