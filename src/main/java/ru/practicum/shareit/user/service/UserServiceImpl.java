@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.UserAlreadyExists;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.repository.UserStorage;
+import ru.practicum.shareit.user.mapper.UserMapper;
 
 import java.util.List;
 
@@ -15,33 +17,38 @@ public class UserServiceImpl implements UserService {
 
     private final UserStorage userRepository;
 
-
-    public List<User> getAll() {
-        return userRepository.getAll();
+    public List<UserDto> getAll() {
+        List<User> users = userRepository.getAll();
+        return UserMapper.toUserDtoList(users);
     }
 
-    public User getUser(Long userId) {
+    public UserDto getUser(Long userId) {
         if (!userRepository.isUserExistById(userId)) {
             throw new NotFoundException("User not found");
         }
-        return userRepository.getUser(userId);
+        User user = userRepository.getUser(userId);
+        return UserMapper.toUserDto(user);
     }
 
-    public User create(User user) {
+    public UserDto create(UserDto userDto) {
+        User user = UserMapper.toUser(userDto);
         if (user.getEmail() == null) {
             throw new IllegalArgumentException("Incorrect email.");
         }
         if (userRepository.isUserExistByEmail(user.getEmail())) {
             throw new UserAlreadyExists("User already exists");
         }
-        return userRepository.create(user);
+        User createdUser = userRepository.create(user);
+        return UserMapper.toUserDto(createdUser);
     }
 
-    public User update(Long userId, User user) {
+    public UserDto update(Long userId, UserDto userDto) {
         if (!userRepository.isUserExistById(userId)) {
             throw new NotFoundException("User not found");
         }
-        return userRepository.update(userId, user);
+        User user = UserMapper.toUser(userDto);
+        User updatedUser = userRepository.update(userId, user);
+        return UserMapper.toUserDto(updatedUser);
     }
 
     public Boolean delete(Long userId) {

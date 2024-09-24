@@ -7,17 +7,18 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Primary
 @Repository
 public class InMemoryUserStorageImpl implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
-    private final Map<String, Long> emails = new HashMap<>();
+    private final Set<String> emails = new HashSet<>();
     private Long id = 0L;
-
 
     @Override
     public List<User> getAll() {
@@ -33,7 +34,7 @@ public class InMemoryUserStorageImpl implements UserStorage {
     public User create(User user) {
         user.setId(++id);
         users.put(user.getId(), user);
-        emails.put(user.getEmail(), user.getId());
+        emails.add(user.getEmail());
         return user;
     }
 
@@ -52,12 +53,12 @@ public class InMemoryUserStorageImpl implements UserStorage {
         }
 
         if (newEmail != null && !oldEmail.equals(newEmail)) {
-            if (isUserExistByEmail(newEmail)) {
+            if (emails.contains(newEmail)) {
                 throw new UserAlreadyExists("Email is already in use : " + newEmail);
             }
             currentUser.setEmail(newEmail);
             emails.remove(oldEmail);
-            emails.put(newEmail, userId);
+            emails.add(newEmail);
         }
 
         users.put(userId, currentUser);
@@ -83,6 +84,6 @@ public class InMemoryUserStorageImpl implements UserStorage {
 
     @Override
     public Boolean isUserExistByEmail(String email) {
-        return emails.containsKey(email);
+        return emails.contains(email);
     }
 }

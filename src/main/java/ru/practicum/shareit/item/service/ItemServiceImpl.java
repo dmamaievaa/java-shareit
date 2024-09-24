@@ -3,11 +3,11 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemStorage;
 import ru.practicum.shareit.user.repository.UserStorage;
-import ru.practicum.shareit.item.validator.ItemValidator;
-
 
 import java.util.List;
 
@@ -20,33 +20,37 @@ public class ItemServiceImpl implements ItemService {
     private final ItemStorage itemStorage;
     private final UserStorage userStorage;
 
-
-    public List<Item> getAllByUserId(Long userId) {
-        return itemStorage.getAllByUserId(userId);
+    public List<ItemDto> getAllByUserId(Long userId) {
+        List<Item> items = itemStorage.getAllByUserId(userId);
+        return ItemMapper.toItemDtoList(items);
     }
 
-    public Item getItem(Long itemId) {
+    public ItemDto getItem(Long itemId) {
         if (!itemStorage.isItemExist(itemId)) {
             throw new NotFoundException(ITEM_NOT_FOUND);
         }
-        return itemStorage.getItem(itemId);
+        Item item = itemStorage.getItem(itemId);
+        return ItemMapper.toItemDto(item);
     }
 
-    public Item create(Long userId, Item item) {
+    public ItemDto create(Long userId, ItemDto itemDto) {
         if (!userStorage.isUserExistById(userId)) {
             throw new NotFoundException(USER_NOT_FOUND);
         }
 
-        ItemValidator.validateItem(item);
-
-        return itemStorage.create(userId, item);
+        Item item = ItemMapper.toItem(itemDto);
+        Item createdItem = itemStorage.create(userId, item);
+        return ItemMapper.toItemDto(createdItem);
     }
 
-    public Item update(Long userId, Long itemId, Item item) {
+    public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         if (!itemStorage.isItemExist(itemId)) {
             throw new NotFoundException(ITEM_NOT_FOUND);
         }
-        return itemStorage.update(userId, itemId, item);
+
+        Item item = ItemMapper.toItem(itemDto);
+        Item updatedItem = itemStorage.update(userId, itemId, item);
+        return ItemMapper.toItemDto(updatedItem);
     }
 
     public Boolean delete(Long itemId) {
@@ -56,7 +60,8 @@ public class ItemServiceImpl implements ItemService {
         return itemStorage.delete(itemId);
     }
 
-    public List<Item> search(String text) {
-        return itemStorage.search(text);
+    public List<ItemDto> search(String text) {
+        List<Item> items = itemStorage.search(text);
+        return ItemMapper.toItemDtoList(items);
     }
 }

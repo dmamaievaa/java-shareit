@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.ForbiddenException;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.item.validator.ItemValidator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,13 +29,9 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public List<Item> getAllByUserId(Long userId) {
-        List<Item> result = new ArrayList<>();
-        for (Item i : items.values()) {
-            if (i.getOwner().getId().equals(userId)) {
-                result.add(i);
-            }
-        }
-        return result;
+        return items.values().stream()
+                .filter(item -> item.getOwner().getId().equals(userId))
+                .toList();
     }
 
     @Override
@@ -43,7 +42,9 @@ public class InMemoryItemStorageImpl implements ItemStorage {
     @Override
     public Item create(Long userId, Item item) {
         item.setId(++id);
-        item.setOwner(userService.getUser(userId));
+        UserDto userDto = userService.getUser(userId);
+        User owner = UserMapper.toUser(userDto);
+        item.setOwner(owner);
         items.put(item.getId(), item);
 
         return item;
@@ -56,12 +57,13 @@ public class InMemoryItemStorageImpl implements ItemStorage {
         if (!Objects.equals(currentItem.getOwner().getId(), userId)) {
             throw new ForbiddenException("User don't have access to this item.");
         }
-        Item updatedItem = ItemValidator.itemPatch(currentItem, item);
 
-        ItemValidator.validateItem(updatedItem);
+        Item updatedItem = ItemMapper.itemPatch(currentItem, item);
 
+        items.put(itemId, updatedItem);
         return updatedItem;
     }
+
 
     @Override
     public Boolean delete(Long itemId) {
@@ -73,19 +75,14 @@ public class InMemoryItemStorageImpl implements ItemStorage {
     public List<Item> search(String text) {
         if (text.isBlank()) {
             return new ArrayList<>();
-        } else {
-            List<Item> result = new ArrayList<>();
-            String lowerCaseText = text.toLowerCase();
-
-            for (Item i : items.values()) {
-                if ((i.getName().toLowerCase().contains(lowerCaseText)
-                        || i.getDescription().toLowerCase().contains(lowerCaseText))
-                        && i.getAvailable()) {
-                    result.add(i);
-                }
-            }
-            return result;
         }
+
+        String lowerCaseText = text.toLowerCase();
+        return items.values().stream()
+                .filter(item -> (item.getName().toLowerCase().contains(lowerCaseText) ||
+                        item.getDescription().toLowerCase().contains(lowerCaseText)) &&
+                        item.getAvailable())
+                .toList();
     }
 
     @Override

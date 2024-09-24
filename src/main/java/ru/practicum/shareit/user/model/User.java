@@ -1,7 +1,5 @@
 package ru.practicum.shareit.user.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,8 +8,8 @@ import lombok.Data;
 public class User {
 
     private Long id;
+
     private String name;
-    @NotBlank
-    @Email
+
     private String email;
 }
