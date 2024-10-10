@@ -44,6 +44,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidParamException.class)
+    public ResponseEntity<Map<String, String>> handleEnumNotFoundException(InvalidParamException ex) {
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("error", ex.getMessage());
+        responseBody.put("parameter", ex.getParameter());
+        responseBody.put("reason", ex.getReason());
+        return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception ex) {
         return new ResponseEntity<>("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

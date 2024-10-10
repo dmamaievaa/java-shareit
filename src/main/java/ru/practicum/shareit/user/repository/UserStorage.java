@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface UserStorage {
 
-    List<User> getAll();
+    List<User> findAll();
 
-    User getUser(Long userId);
+    User get(Long userId);
 
     User create(User user);
 

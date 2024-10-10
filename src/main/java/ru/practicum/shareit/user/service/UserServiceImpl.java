@@ -6,7 +6,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.UserAlreadyExists;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.repository.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 
 import java.util.List;
@@ -15,18 +15,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserStorage userRepository;
+    private final UserRepository userRepository;
 
-    public List<UserDto> getAll() {
-        List<User> users = userRepository.getAll();
+    public List<UserDto> findAll() {
+        List<User> users = userRepository.findAll();
         return UserMapper.toUserDtoList(users);
     }
 
-    public UserDto getUser(Long userId) {
-        if (!userRepository.isUserExistById(userId)) {
-            throw new NotFoundException("User not found");
-        }
-        User user = userRepository.getUser(userId);
+    public UserDto get(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
         return UserMapper.toUserDto(user);
     }
 
@@ -35,26 +33,36 @@ public class UserServiceImpl implements UserService {
         if (user.getEmail() == null) {
             throw new IllegalArgumentException("Incorrect email.");
         }
-        if (userRepository.isUserExistByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(user.getEmail())) {
             throw new UserAlreadyExists("User already exists");
         }
-        User createdUser = userRepository.create(user);
+        User createdUser = userRepository.save(user);
         return UserMapper.toUserDto(createdUser);
     }
 
     public UserDto update(Long userId, UserDto userDto) {
-        if (!userRepository.isUserExistById(userId)) {
-            throw new NotFoundException("User not found");
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        if (userDto.getName() != null) {
+            existingUser.setName(userDto.getName());
         }
-        User user = UserMapper.toUser(userDto);
-        User updatedUser = userRepository.update(userId, user);
+        if (userDto.getEmail() != null) {
+            if (userRepository.existsByEmail(userDto.getEmail()) && !existingUser.getEmail().equals(userDto.getEmail())) {
+                throw new UserAlreadyExists("Email is already in use");
+            }
+            existingUser.setEmail(userDto.getEmail());
+        }
+
+        User updatedUser = userRepository.save(existingUser);
         return UserMapper.toUserDto(updatedUser);
     }
 
     public Boolean delete(Long userId) {
-        if (!userRepository.isUserExistById(userId)) {
+        if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User not found");
         }
-        return userRepository.delete(userId);
+        userRepository.deleteById(userId);
+        return true;
     }
 }

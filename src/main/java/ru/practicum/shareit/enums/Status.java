@@ -4,5 +4,9 @@ public enum Status {
     WAITING,
     APPROVED,
     REJECTED,
-    CANCELED
+    CANCELED,
+    ALL,
+    CURRENT,
+    FUTURE,
+    PAST
 }

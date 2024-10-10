@@ -28,21 +28,21 @@ public class InMemoryItemStorageImpl implements ItemStorage {
     private Long id = 0L;
 
     @Override
-    public List<Item> getAllByUserId(Long userId) {
+    public List<Item> findAll(Long userId) {
         return items.values().stream()
                 .filter(item -> item.getOwner().getId().equals(userId))
                 .toList();
     }
 
     @Override
-    public Item getItem(Long itemId) {
+    public Item get(Long itemId) {
         return items.get(itemId);
     }
 
     @Override
     public Item create(Long userId, Item item) {
         item.setId(++id);
-        UserDto userDto = userService.getUser(userId);
+        UserDto userDto = userService.get(userId);
         User owner = UserMapper.toUser(userDto);
         item.setOwner(owner);
         items.put(item.getId(), item);
@@ -52,7 +52,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public Item update(Long userId, Long itemId, Item item) {
-        Item currentItem = getItem(itemId);
+        Item currentItem = get(itemId);
 
         if (!Objects.equals(currentItem.getOwner().getId(), userId)) {
             throw new ForbiddenException("User don't have access to this item.");

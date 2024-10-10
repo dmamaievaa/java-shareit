@@ -21,12 +21,12 @@ public class InMemoryUserStorageImpl implements UserStorage {
     private Long id = 0L;
 
     @Override
-    public List<User> getAll() {
+    public List<User> findAll() {
         return new ArrayList<>(users.values());
     }
 
     @Override
-    public User getUser(Long id) {
+    public User get(Long id) {
         return users.get(id);
     }
 
@@ -40,7 +40,7 @@ public class InMemoryUserStorageImpl implements UserStorage {
 
     @Override
     public User update(Long userId, User user) {
-        User currentUser = getUser(userId);
+        User currentUser = get(userId);
         if (currentUser == null) {
             throw new IllegalArgumentException("User with ID " + userId + " not found");
         }
@@ -67,7 +67,7 @@ public class InMemoryUserStorageImpl implements UserStorage {
 
     @Override
     public Boolean delete(Long userId) {
-        User user = getUser(userId);
+        User user = get(userId);
         if (user == null) {
             return false;
         }
