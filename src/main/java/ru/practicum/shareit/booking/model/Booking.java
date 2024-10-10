@@ -31,7 +31,7 @@ public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "start_date", nullable = false)
     @Builder.Default
@@ -43,20 +43,20 @@ public class Booking {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
-    private Item item;
+    Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booker_id", nullable = false)
-    private User booker;
+    User booker;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
+    User owner;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     @Builder.Default
-    private Status status = Status.WAITING;
+    Status status = Status.WAITING;
 
     @Column(name = "available", nullable = false)
     Boolean available;

@@ -33,11 +33,11 @@ public class ItemRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
-    private String description;
+    String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requestor_id", nullable = false)
-    private User requestor;
+    User requestor;
 }

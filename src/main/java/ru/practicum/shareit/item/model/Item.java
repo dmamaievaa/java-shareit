@@ -34,24 +34,24 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "name", nullable = false)
-    private String name;
+    String name;
 
     @Column(name = "description", nullable = false)
-    private String description;
+    String description;
 
     @Column(name = "available", nullable = false)
-    private Boolean available;
+    Boolean available;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
+    User owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id", nullable = false)
-    private ItemRequest request;
+    ItemRequest request;
 
     @Column(name = "last_booking")
     Instant lastBooking;
