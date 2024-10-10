@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface ItemStorage {
 
-    List<Item> getAllByUserId(Long userId);
+    List<Item> findAll(Long userId);
 
-    Item getItem(Long itemId);
+    Item get(Long itemId);
 
     Item create(Long userId, Item item);
 
