@@ -16,6 +16,11 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import static ru.practicum.shareit.utils.GlobalConstants.ITEM_NOT_FOUND;
+import static ru.practicum.shareit.utils.GlobalConstants.USER_NOT_BOOKED_ITEM;
+import static ru.practicum.shareit.utils.GlobalConstants.USER_NOT_FOUND;
+
+
 import java.time.Instant;
 import java.util.List;
 import java.time.LocalDateTime;
@@ -25,8 +30,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private static final String ITEM_NOT_FOUND = "Item not found.";
-    private static final String USER_NOT_FOUND = "User not found.";
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
@@ -62,15 +65,7 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException(USER_NOT_FOUND);
         }
 
-        if (itemDto.getName() != null) {
-            existingItem.setName(itemDto.getName());
-        }
-        if (itemDto.getDescription() != null) {
-            existingItem.setDescription(itemDto.getDescription());
-        }
-        if (itemDto.getAvailable() != null) {
-            existingItem.setAvailable(itemDto.getAvailable());
-        }
+        ItemMapper.itemPatch(existingItem, itemDto);
 
         Item updatedItem = itemRepository.save(existingItem);
         return ItemMapper.toItemDto(updatedItem);
@@ -89,27 +84,27 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDtoList(items);
     }
 
-  public CommentDto addComment(Long itemId, Long userId, CommentDto commentDto) {
+    public CommentDto addComment(Long itemId, Long userId, CommentDto commentDto) {
 
-      User user = userRepository.findById(userId)
-              .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
 
-      Item item = itemRepository.findById(itemId)
-              .orElseThrow(() -> new NotFoundException(ITEM_NOT_FOUND));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(ITEM_NOT_FOUND));
 
-      bookingRepository.findByItemIdAndUserIdAndEndBookingBefore(itemId, userId, LocalDateTime.now())
-              .orElseThrow(() -> new InvalidParamException("User didn't book this item", userId.toString()));
+        bookingRepository.findByItemIdAndUserIdAndEndBookingBefore(itemId, userId, LocalDateTime.now())
+                .orElseThrow(() -> new InvalidParamException(USER_NOT_BOOKED_ITEM, userId.toString()));
 
-      Comment comment = CommentMapper.toComment(commentDto);
-      comment.setItem(item);
-      comment.setAuthor(user);
-      comment.setCreated(Instant.now());
+        Comment comment = CommentMapper.toComment(commentDto);
+        comment.setItem(item);
+        comment.setAuthor(user);
+        comment.setCreated(Instant.now());
 
-      Comment savedComment = commentRepository.save(comment);
-      return CommentMapper.toCommentDto(savedComment);
-  }
+        Comment savedComment = commentRepository.save(comment);
+        return CommentMapper.toCommentDto(savedComment);
+    }
 
-  public List<CommentDto> getComments(Long itemId) {
+    public List<CommentDto> getComments(Long itemId) {
         List<Comment> comments = commentRepository.findByItem_Id(itemId);
         return CommentMapper.toCommentDtoList(comments);
     }

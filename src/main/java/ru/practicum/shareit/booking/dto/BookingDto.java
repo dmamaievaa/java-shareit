@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -46,9 +45,4 @@ public class BookingDto {
     ItemDto item;
 
     UserDto booker;
-
-    @AssertTrue(message = "Start date must be before end date")
-    public boolean isStartBeforeEnd() {
-        return start.isBefore(end);
-   }
 }

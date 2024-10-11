@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.utils.GlobalConstant;
+import ru.practicum.shareit.utils.GlobalConstants;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -20,7 +20,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> findAll(@RequestHeader(GlobalConstant.USERID_HEADER) Long userId) {
+    public List<ItemDto> findAll(@RequestHeader(GlobalConstants.USERID_HEADER) Long userId) {
         log.info("Fetching all items for user ID: {}", userId);
         List<ItemDto> items = itemService.findAll(userId);
         log.info("Fetched {} items for user ID: {}", items.size(), userId);
@@ -36,7 +36,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto create(@RequestHeader(GlobalConstant.USERID_HEADER) Long userId, @RequestBody @Valid ItemDto itemDto) {
+    public ItemDto create(@RequestHeader(GlobalConstants.USERID_HEADER) Long userId, @RequestBody @Valid ItemDto itemDto) {
         log.info("Creating item for user ID: {} with item details: {}", userId, itemDto);
         ItemDto createdItem = itemService.create(userId, itemDto);
         log.info("Item successfully created with ID: {}", createdItem.getId());
@@ -44,7 +44,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader(GlobalConstant.USERID_HEADER) Long userId,
+    public ItemDto update(@RequestHeader(GlobalConstants.USERID_HEADER) Long userId,
                           @PathVariable Long itemId,
                           @RequestBody ItemDto itemDto) {
         log.info("Updating item ID: {} for user ID: {} with new details: {}", itemId, userId, itemDto);
@@ -76,12 +76,10 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto addComment(@RequestHeader(GlobalConstant.USERID_HEADER) Long userId,
+    public CommentDto addComment(@RequestHeader(GlobalConstants.USERID_HEADER) Long userId,
                                  @PathVariable Long itemId,
                                  @RequestBody @Valid CommentDto commentDto) {
         log.info("Adding comment for item ID: {} by user ID: {} with comment details: {}", itemId, userId, commentDto);
-        commentDto.setAuthorId(userId);
-        commentDto.setItemId(itemId);
         CommentDto createdComment = itemService.addComment(itemId, userId, commentDto);
         log.info("Comment successfully added with ID: {} for item ID: {}", createdComment.getId(), itemId);
         return createdComment;

@@ -7,7 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import jakarta.validation.Valid;
-import ru.practicum.shareit.utils.GlobalConstant;
+import ru.practicum.shareit.utils.GlobalConstants;
 
 import java.util.List;
 
@@ -21,18 +21,17 @@ public class BookingController {
 
     @PostMapping
     public BookingDto createBooking(
-            @RequestHeader(GlobalConstant.USERID_HEADER) Long userId,
+            @RequestHeader(GlobalConstants.USERID_HEADER) Long userId,
             @RequestBody @Valid BookingDto bookingDto) {
         log.info("Starting booking creation for user ID: {} with booking details: {}", userId, bookingDto);
-        bookingDto.setBookerId(userId);
-        BookingDto createdBooking = bookingService.createBooking(bookingDto);
+        BookingDto createdBooking = bookingService.createBooking(bookingDto, userId);
         log.info("Booking successfully created with ID: {}", createdBooking.getId());
         return createdBooking;
     }
 
     @PatchMapping("/{bookingId}")
     public BookingDto approveBooking(
-            @RequestHeader(GlobalConstant.USERID_HEADER) Long userId,
+            @RequestHeader(GlobalConstants.USERID_HEADER) Long userId,
             @PathVariable Long bookingId,
             @RequestParam boolean approved) {
         log.info("User ID: {} is attempting to approve booking ID: {} with approval status: {}", userId, bookingId, approved);
@@ -42,7 +41,7 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto getBooking(@RequestHeader(GlobalConstant.USERID_HEADER) Long userId,
+    public BookingDto getBooking(@RequestHeader(GlobalConstants.USERID_HEADER) Long userId,
                                  @PathVariable Long bookingId) {
         log.info("Fetching booking details for booking ID: {} by user ID: {}", bookingId, userId);
         BookingDto booking = bookingService.getBookingById(bookingId);
@@ -51,7 +50,7 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getUserBookings(@RequestHeader(GlobalConstant.USERID_HEADER) Long userId,
+    public List<BookingDto> getUserBookings(@RequestHeader(GlobalConstants.USERID_HEADER) Long userId,
                                             @RequestParam(defaultValue = "ALL") String state) {
         log.info("Fetching bookings for user ID: {} with state: {}", userId, state);
         List<BookingDto> userBookings = bookingService.getBookingsForCurrentUser(userId, state);
@@ -60,7 +59,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getOwnerBookings(@RequestHeader(GlobalConstant.USERID_HEADER) Long userId,
+    public List<BookingDto> getOwnerBookings(@RequestHeader(GlobalConstants.USERID_HEADER) Long userId,
                                              @RequestParam(defaultValue = "ALL") String state) {
         log.info("Fetching owner bookings for user ID: {} with state: {}", userId, state);
         List<BookingDto> ownerBookings = bookingService.getBookingsForOwner(userId, state);

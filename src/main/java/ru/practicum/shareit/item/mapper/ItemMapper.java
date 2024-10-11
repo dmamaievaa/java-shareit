@@ -63,15 +63,15 @@ public class ItemMapper {
                 .collect(Collectors.toList());
     }
 
-    public static Item itemPatch(Item currentItem, Item item) {
-        if (item.getName() != null) {
-            currentItem.setName(item.getName());
+    public static Item itemPatch(Item currentItem, ItemDto itemDto) {
+        if (itemDto.getName() != null) {
+            currentItem.setName(itemDto.getName());
         }
-        if (item.getDescription() != null) {
-            currentItem.setDescription(item.getDescription());
+        if (itemDto.getDescription() != null) {
+            currentItem.setDescription(itemDto.getDescription());
         }
-        if (item.getAvailable() != null) {
-            currentItem.setAvailable(item.getAvailable());
+        if (itemDto.getAvailable() != null) {
+            currentItem.setAvailable(itemDto.getAvailable());
         }
         return currentItem;
     }

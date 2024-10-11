@@ -2,7 +2,6 @@ package ru.practicum.shareit.exception;
 import lombok.Getter;
 
 @Getter
-
 public class InvalidParamException extends RuntimeException {
 
     private final String parameter;
