@@ -2,24 +2,36 @@ package ru.practicum.shareit.item.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.experimental.FieldDefaults;
 
-@Data
+import java.util.List;
+
 @Builder
+@Getter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemDto {
 
-    private Long id;
+    Long id;
 
     @NotBlank(message = "Item name cannot be blank")
-    private String name;
+    String name;
 
     @NotBlank(message = "Item description cannot be blank")
-    private String description;
+    String description;
 
     @NotNull(message = "Item availability status cannot be null")
-    private Boolean available;
+    Boolean available;
 
-    private Long owner;
-    private Long request;
+    Long owner;
+
+    Long request;
+
+    String lastBooking;
+
+    String nextBooking;
+
+    List<CommentDto> comments;
 }

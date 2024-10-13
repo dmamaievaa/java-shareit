@@ -1,51 +1,57 @@
 package ru.practicum.shareit.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.HashMap;
-import java.util.Map;
-
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFoundException(NotFoundException ex) {
+        return new ErrorResponse("Not Found", ex.getMessage());
     }
 
     @ExceptionHandler(InvalidItemException.class)
-    public ResponseEntity<String> handleInvalidItemException(InvalidItemException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidItemException(InvalidItemException ex) {
+        return new ErrorResponse("Bad Request", ex.getMessage());
     }
 
     @ExceptionHandler(UserAlreadyExists.class)
-    public ResponseEntity<Map<String, String>> handleUserAlreadyExists(UserAlreadyExists ex) {
-        Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("error", ex.getMessage());
-        return new ResponseEntity<>(responseBody, HttpStatus.CONFLICT);
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleUserAlreadyExists(UserAlreadyExists ex) {
+        return new ErrorResponse("Conflict", ex.getMessage());
     }
 
     @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<String> handleForbiddenException(ForbiddenException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenException(ForbiddenException ex) {
+        return new ErrorResponse("Forbidden", ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationExceptions(MethodArgumentNotValidException ex) {
+        StringBuilder errorMessage = new StringBuilder();
         ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errors.put(error.getField(), error.getDefaultMessage());
+            errorMessage.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("; ");
         });
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        return new ErrorResponse("Validation Failed", errorMessage.toString());
+    }
+
+    @ExceptionHandler(InvalidParamException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleEnumNotFoundException(InvalidParamException ex) {
+        return new ErrorResponse("Bad Request", ex.getMessage() + " | Parameter: " + ex.getParameter() + " | Reason: " + ex.getReason());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGenericException(Exception ex) {
-        return new ResponseEntity<>("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleGenericException(Exception ex) {
+        return new ErrorResponse("Internal Server Error", "An unexpected error occurred: " + ex.getMessage());
     }
 }
