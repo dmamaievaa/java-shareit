@@ -7,12 +7,6 @@ import java.util.List;
 
 public interface BookingHandler {
 
-    List<Booking> handle(Long personId, boolean isOwner);
-
-    void setNext(BookingHandler next);
-
-    boolean canHandle(Status status);
-
-    BookingHandler getNext();
+    List<Booking> handle(Long personId, boolean isOwner, Status status);
 }
 

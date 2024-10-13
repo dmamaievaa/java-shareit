@@ -5,14 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.handler.AllBookingHandler;
-import ru.practicum.shareit.booking.handler.ApprovedBookingHandler;
-import ru.practicum.shareit.booking.handler.BookingHandler;
-import ru.practicum.shareit.booking.handler.CancelledBookingHandler;
-import ru.practicum.shareit.booking.handler.CurrentBookingHandler;
-import ru.practicum.shareit.booking.handler.FutureBookingHandler;
-import ru.practicum.shareit.booking.handler.PastBookingHandler;
-import ru.practicum.shareit.booking.handler.RejectedBookingHandler;
-import ru.practicum.shareit.booking.handler.WaitingBookingHandler;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -42,27 +34,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-
-    private BookingHandler buildBookingHandlerChain() {
-        AllBookingHandler allHandler = new AllBookingHandler(bookingRepository);
-        ApprovedBookingHandler approvedHandler = new ApprovedBookingHandler(bookingRepository);
-        CancelledBookingHandler cancelledHandler = new CancelledBookingHandler(bookingRepository);
-        CurrentBookingHandler currentHandler = new CurrentBookingHandler(bookingRepository);
-        FutureBookingHandler futureHandler = new FutureBookingHandler(bookingRepository);
-        PastBookingHandler pastHandler = new PastBookingHandler(bookingRepository);
-        RejectedBookingHandler rejectedHandler = new RejectedBookingHandler(bookingRepository);
-        WaitingBookingHandler waitingHandler = new WaitingBookingHandler(bookingRepository);
-
-        allHandler.setNext(approvedHandler);
-        approvedHandler.setNext(cancelledHandler);
-        cancelledHandler.setNext(currentHandler);
-        currentHandler.setNext(futureHandler);
-        futureHandler.setNext(pastHandler);
-        pastHandler.setNext(rejectedHandler);
-        rejectedHandler.setNext(waitingHandler);
-
-        return allHandler;
-    }
+    private final AllBookingHandler allBookingHandler;
 
     @Override
     public BookingDto createBooking(BookingDto bookingDto, Long userId) {
@@ -144,16 +116,13 @@ public class BookingServiceImpl implements BookingService {
     private List<BookingDto> getBookings(Long userId, String state, boolean isOwner) {
         Status status = validateUserAndGetStatus(userId, state);
 
-        BookingHandler handler = buildBookingHandlerChain();
-        do {
-            if (handler.canHandle(status)) {
-                List<Booking> bookings = handler.handle(userId, isOwner);
-                return BookingMapper.toBookingDtoList(bookings);
-            }
-            handler = handler.getNext();
-        } while (handler != null);
+        List<Booking> bookings = allBookingHandler.handle(userId, isOwner, status);
 
-        throw new InvalidParamException(INVALID_STATE, state);
+        if (bookings == null) {
+            throw new InvalidParamException(INVALID_STATE, state);
+        }
+
+        return BookingMapper.toBookingDtoList(bookings);
     }
 
     private void validateBookingOwner(Booking booking, Long userId) {

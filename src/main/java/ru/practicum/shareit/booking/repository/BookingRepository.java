@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.enums.Status;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,78 +17,79 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "ORDER BY b.end_date DESC LIMIT 1", nativeQuery = true)
     Optional<Booking> findByItemIdAndUserIdAndEndBookingBefore(Long itemId, Long userId, LocalDateTime instant);
 
+    @EntityGraph(attributePaths = {"item", "booker", "owner"})
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :userId AND (:status IS NULL OR b.status = :status) ORDER BY b.start DESC")
+    List<Booking> findByBookerAndStatus(long userId, Status status);
+
+    @EntityGraph(attributePaths = {"item", "booker", "owner"})
+    @Query("SELECT b FROM Booking b WHERE b.item.owner.id = :ownerId AND (:status IS NULL OR b.status = :status) ORDER BY b.start DESC")
+    List<Booking> findByOwnerAndStatus(long ownerId, Status status);
+
     // USER
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = :id AND b.status = 'WAITING' ORDER BY b.start DESC")
-    List<Booking> findWaitingForCurrentUser(long id);
+    default List<Booking> findWaitingForCurrentUser(long id) {
+        return findByBookerAndStatus(id, Status.WAITING);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = :id AND b.status = 'CANCELED' ORDER BY b.start DESC")
-    List<Booking> findCancelledForCurrentUser(long id);
+    default List<Booking> findCancelledForCurrentUser(long id) {
+        return findByBookerAndStatus(id, Status.CANCELED);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = :id AND b.status = 'APPROVED' ORDER BY b.start DESC")
-    List<Booking> findApprovedForCurrentUser(long id);
+    default List<Booking> findApprovedForCurrentUser(long id) {
+        return findByBookerAndStatus(id, Status.APPROVED);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = :id AND b.status = 'REJECTED' ORDER BY b.start DESC")
-    List<Booking> findRejectedForCurrentUser(long id);
+    default List<Booking> findRejectedForCurrentUser(long id) {
+        return findByBookerAndStatus(id, Status.REJECTED);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = :id ORDER BY b.start DESC")
-    List<Booking> findAllForCurrentUser(long id);
+    default List<Booking> findAllForCurrentUser(long id) {
+        return findByBookerAndStatus(id, null);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = :id AND b.status = 'APPROVED' " +
-            "AND b.start <= CURRENT_TIMESTAMP AND b.end >= CURRENT_TIMESTAMP ORDER BY b.start DESC")
-    List<Booking> findCurrentForCurrentUser(long id);
+    default List<Booking> findCurrentForCurrentUser(long id) {
+        return findByBookerAndStatus(id, Status.CURRENT);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = :id AND b.status = 'APPROVED' " +
-            "AND b.end < CURRENT_TIMESTAMP ORDER BY b.start DESC")
-    List<Booking> findPastForCurrentUser(long id);
+    default List<Booking> findPastForCurrentUser(long id) {
+        return findByBookerAndStatus(id, Status.PAST);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = :id AND b.status = 'APPROVED' " +
-            "AND b.start > CURRENT_TIMESTAMP ORDER BY b.start DESC")
-    List<Booking> findFutureForCurrentUser(long id);
+    default List<Booking> findFutureForCurrentUser(long id) {
+        return findByBookerAndStatus(id, Status.FUTURE);
+    }
 
     // OWNER
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.item.owner.id = :id AND b.status = 'WAITING' ORDER BY b.start DESC")
-    List<Booking> findWaitingForOwnerId(long id);
+    default List<Booking> findWaitingForOwnerId(long id) {
+        return findByOwnerAndStatus(id, Status.WAITING);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.item.owner.id = :id AND b.status = 'REJECTED' ORDER BY b.start DESC")
-    List<Booking> findRejectedForOwnerId(long id);
+    default List<Booking> findRejectedForOwnerId(long id) {
+        return findByOwnerAndStatus(id, Status.REJECTED);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.item.owner.id = :id AND b.status = 'APPROVED' ORDER BY b.start DESC")
-    List<Booking> findApprovedForOwnerId(long id);
+    default List<Booking> findApprovedForOwnerId(long id) {
+        return findByOwnerAndStatus(id, Status.APPROVED);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.item.owner.id = :id AND b.status = 'CANCELED' ORDER BY b.start DESC")
-    List<Booking> findCancelledForOwnerId(long id);
+    default List<Booking> findCancelledForOwnerId(long id) {
+        return findByOwnerAndStatus(id, Status.CANCELED);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.item.owner.id = :id ORDER BY b.start DESC")
-    List<Booking> findAllForOwnerId(long id);
+    default List<Booking> findAllForOwnerId(long id) {
+        return findByOwnerAndStatus(id, null);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.item.owner.id = :id AND b.status = 'APPROVED' " +
-            "AND b.start <= CURRENT_TIMESTAMP AND b.end >= CURRENT_TIMESTAMP ORDER BY b.start DESC")
-    List<Booking> findCurrentForOwnerId(long id);
+    default List<Booking> findCurrentForOwnerId(long id) {
+        return findByOwnerAndStatus(id, Status.CURRENT);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.item.owner.id = :id AND b.status = 'APPROVED' " +
-            "AND b.end < CURRENT_TIMESTAMP ORDER BY b.start DESC")
-    List<Booking> findPastForOwnerId(long id);
+    default List<Booking> findPastForOwnerId(long id) {
+        return findByOwnerAndStatus(id, Status.PAST);
+    }
 
-    @EntityGraph(attributePaths = {"item", "booker", "owner"})
-    @Query("SELECT b FROM Booking b WHERE b.item.owner.id = :id AND b.status = 'APPROVED' " +
-            "AND b.start > CURRENT_TIMESTAMP ORDER BY b.start DESC")
-    List<Booking> findFutureForOwnerId(long id);
+    default List<Booking> findFutureForOwnerId(long id) {
+        return findByOwnerAndStatus(id, Status.FUTURE);
+    }
 }
-
