@@ -50,7 +50,7 @@ public class Item {
     User owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "request_id", nullable = false)
+    @JoinColumn(name = "request_id", nullable = true)
     ItemRequest request;
 
     @Column(name = "last_booking")

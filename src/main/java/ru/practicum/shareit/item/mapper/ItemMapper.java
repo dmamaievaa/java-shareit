@@ -23,6 +23,7 @@ public class ItemMapper {
                 .available(item.getAvailable())
                 .owner(item.getOwner() != null ? item.getOwner().getId() : null)
                 .request(item.getRequest() != null ? item.getRequest().getId() : null)
+                .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
                 .lastBooking(item.getLastBooking() != null ? item.getLastBooking().toString() : null)
                 .nextBooking(item.getNextBooking() != null ? item.getNextBooking().toString() : null)
                 .comments(toCommentDtoList(item.getComments()))

@@ -34,4 +34,6 @@ public class ItemDto {
     String nextBooking;
 
     List<CommentDto> comments;
+
+    Long requestId;
 }

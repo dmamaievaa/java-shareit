@@ -19,6 +19,8 @@ import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "requests")
 @Getter
@@ -40,4 +42,6 @@ public class ItemRequest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requestor_id", nullable = false)
     User requestor;
+
+    LocalDateTime created;
 }

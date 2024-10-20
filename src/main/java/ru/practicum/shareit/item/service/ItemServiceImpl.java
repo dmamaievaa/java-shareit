@@ -13,10 +13,13 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import static ru.practicum.shareit.utils.GlobalConstants.ITEM_NOT_FOUND;
+import static ru.practicum.shareit.utils.GlobalConstants.REQUEST_NOT_FOUND;
 import static ru.practicum.shareit.utils.GlobalConstants.USER_NOT_BOOKED_ITEM;
 import static ru.practicum.shareit.utils.GlobalConstants.USER_NOT_FOUND;
 
@@ -34,6 +37,8 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
+    private final ItemRequestRepository itemRequestRepository;
+
 
 
     public List<ItemDto> findAll(Long userId) {
@@ -52,6 +57,11 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = ItemMapper.toItem(itemDto, owner);
 
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = itemRequestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException(REQUEST_NOT_FOUND));
+            item.setRequest(itemRequest);
+        }
         Item createdItem = itemRepository.save(item);
 
         return ItemMapper.toItemDto(createdItem);
