@@ -1,5 +1,6 @@
 package ru.practicum.server.item.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ public class CommentDto {
 
     Long id;
 
+    @NotBlank(message = "Text cannot be empty")
     String text;
 
     Long itemId;
