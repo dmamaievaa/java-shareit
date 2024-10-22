@@ -18,6 +18,8 @@ import ru.practicum.server.item.repository.ItemRepository;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(classes = ShareItServer.class)
@@ -62,6 +64,17 @@ public class BookingServiceImplTest {
         booking.setStatus(Status.WAITING);
         booking = bookingRepository.save(booking);
     }
+    @Test
+    void testCreateBookingSuccess() {
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(item.getId());
+
+        BookingDto createdBooking = bookingService.createBooking(bookingDto, booker.getId());
+
+        assertThat(createdBooking).isNotNull();
+        assertThat(createdBooking.getBookerId()).isEqualTo(booker.getId());
+        assertThat(createdBooking.getItemId()).isEqualTo(item.getId());
+    }
 
     @Test
     void testApproveBookingSuccess() {
@@ -81,5 +94,37 @@ public class BookingServiceImplTest {
 
         Booking updatedBooking = bookingRepository.findById(booking.getId()).orElseThrow();
         assertThat(updatedBooking.getStatus()).isEqualTo(Status.REJECTED);
+    }
+
+    @Test
+    void testGetBookingByIdSuccess() {
+        BookingDto fetchedBooking = bookingService.getBookingById(booking.getId());
+
+        assertThat(fetchedBooking).isNotNull();
+        assertThat(fetchedBooking.getId()).isEqualTo(booking.getId());
+    }
+
+    @Test
+    void testGetBookingsForCurrentUserSuccess() {
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(item.getId());
+        bookingService.createBooking(bookingDto, booker.getId());
+
+        List<BookingDto> bookings = bookingService.getBookingsForCurrentUser(booker.getId(), "ALL");
+
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.getFirst().getBookerId()).isEqualTo(booker.getId());
+    }
+
+    @Test
+    void testGetBookingsForOwnerSuccess() {
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(item.getId());
+        bookingService.createBooking(bookingDto, booker.getId());
+
+        List<BookingDto> bookings = bookingService.getBookingsForOwner(owner.getId(), "ALL");
+
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.getFirst().getItemId()).isEqualTo(item.getId());
     }
 }
