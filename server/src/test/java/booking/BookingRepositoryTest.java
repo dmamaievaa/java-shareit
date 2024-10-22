@@ -21,9 +21,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest(classes = ShareItServer.class)
 @ActiveProfiles("test")
 @Transactional
-@SpringBootTest(classes = ShareItServer.class)
 public class BookingRepositoryTest {
 
     @Autowired
