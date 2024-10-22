@@ -71,7 +71,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public ItemRequestDto getById(Long requestId, Long userId) {
+    public ItemRequestDto getById(Long requestId) {
         log.info("Received request to retrieve item request by id: {}", requestId);
         ItemRequest itemRequest = itemRequestRepository.findById(requestId)
                 .orElseThrow(() -> new DataNotFoundException(String.format(REQUEST_NOT_FOUND, requestId)));
