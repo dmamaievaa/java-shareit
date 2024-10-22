@@ -42,10 +42,10 @@ public class BookingRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        owner = new User(1L, "Test User" , "testUser1@gmail.com");
+        owner = new User(1L, "Test User", "testUser1@gmail.com");
         owner = userRepository.save(owner);
 
-        booker = new User(2L, "Test User 2" , "testUser2@gmail.com");
+        booker = new User(2L, "Test User 2", "testUser2@gmail.com");
         booker = userRepository.save(booker);
 
         item = Item.builder()

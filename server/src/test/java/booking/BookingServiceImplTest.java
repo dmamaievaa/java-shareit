@@ -64,6 +64,7 @@ public class BookingServiceImplTest {
         booking.setStatus(Status.WAITING);
         booking = bookingRepository.save(booking);
     }
+
     @Test
     void testCreateBookingSuccess() {
         BookingDto bookingDto = new BookingDto();
