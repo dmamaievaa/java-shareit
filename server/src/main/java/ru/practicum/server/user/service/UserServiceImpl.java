@@ -43,10 +43,10 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
 
-        if (userDto.getName() != null) {
+        if (userDto.getName() != null && !userDto.getName().isEmpty()) {
             existingUser.setName(userDto.getName());
         }
-        if (userDto.getEmail() != null) {
+        if (userDto.getEmail() != null && !userDto.getEmail().isEmpty()) {
             if (userRepository.existsByEmail(userDto.getEmail()) && !existingUser.getEmail().equals(userDto.getEmail())) {
                 throw new UserAlreadyExists(EMAIL_ALREADY_IN_USE);
             }
