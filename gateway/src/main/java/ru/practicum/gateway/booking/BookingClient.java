@@ -51,4 +51,7 @@ public class BookingClient extends BaseClient {
         return patch(path, userId);
     }
 
+    public ResponseEntity<Object> getOwnerBookings(long userId) {
+        return get("?state={state}", userId);
+    }
 }

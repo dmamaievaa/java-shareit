@@ -60,4 +60,13 @@ public class BookingController {
                                           @RequestParam boolean approved) {
         return bookingClient.approveBooking(bookingId, userId, approved);
     }
+
+    @GetMapping("/owner")
+    public ResponseEntity<Object> getOwnerBookings(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                                   @RequestParam(name = "state",
+                                                           defaultValue = "all") String stateParam) {
+        BookingState state = BookingState.from(stateParam)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+        return bookingClient.getOwnerBookings(userId);
+    }
 }
