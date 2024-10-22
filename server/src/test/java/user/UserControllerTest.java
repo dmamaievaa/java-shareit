@@ -142,4 +142,15 @@ class UserControllerTest {
         Mockito.verify(userService, Mockito.times(1))
                 .delete(Mockito.anyLong());
     }
+
+    @Test
+    void shouldReturnEmptyListWhenNoUsersExist() throws Exception {
+        when(userService.findAll()).thenReturn(List.of());
+
+        mvc.perform(get("/users")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(0))); // Проверка на пустой список
+    }
 }

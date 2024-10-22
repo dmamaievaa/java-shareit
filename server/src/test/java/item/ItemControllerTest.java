@@ -21,6 +21,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -182,5 +183,32 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(commentDto.getId().intValue())))
                 .andExpect(jsonPath("$.text", is(commentDto.getText())));
+    }
+
+    @Test
+    void shouldReturnBadRequestForInvalidItem() throws Exception {
+        ItemDto invalidItem = ItemDto.builder()
+                .name("")
+                .description("")
+                .available(true)
+                .build();
+
+        mvc.perform(post("/items")
+                        .header(GlobalConstants.USERID_HEADER, 1L)
+                        .content(mapper.writeValueAsString(invalidItem))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnEmptyListForEmptySearchQuery() throws Exception {
+        when(itemService.search(anyString())).thenReturn(List.of());
+
+        mvc.perform(get("/items/search")
+                        .param("text", "")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(0)));  // Пустой список
     }
 }
