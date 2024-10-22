@@ -1,7 +1,5 @@
 package ru.practicum.server.user.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +16,5 @@ public class UserDto {
 
     String name;
 
-    @NotBlank
-    @Email
     String email;
 }
