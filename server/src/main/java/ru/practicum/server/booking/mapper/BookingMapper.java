@@ -6,7 +6,7 @@ import ru.practicum.server.item.mapper.ItemMapper;
 import ru.practicum.server.item.model.Item;
 import ru.practicum.server.user.mapper.UserMapper;
 import ru.practicum.server.user.model.User;
-import ru.practicum.server.enums.Status;
+import ru.practicum.server.booking.Status;
 
 
 import java.util.List;

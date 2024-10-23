@@ -24,19 +24,19 @@ public class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        user = new User(1L, "Test User", "testuser@example.com");
+        user = new User(1L, "Test User", "testuser@gmail.com");
         userRepository.save(user);
     }
 
     @Test
-    void testExistsByEmail_Exists() {
-        boolean exists = userRepository.existsByEmail("testuser@example.com");
+    void testUserExistsByEmail() {
+        boolean exists = userRepository.existsByEmail("testuser@gmail.com");
         assertTrue(exists, "User should exist for the specified email");
     }
 
     @Test
-    void testExistsByEmail_NotExists() {
-        boolean exists = userRepository.existsByEmail("nonexistent@example.com");
+    void testUserNotExistsByEmail() {
+        boolean exists = userRepository.existsByEmail("nonexistent@gmail.com");
         assertFalse(exists, "User should not exist for the specified email");
     }
 }

@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.server.booking.model.Booking;
-import ru.practicum.server.enums.Status;
+import ru.practicum.server.booking.Status;
 
 import java.time.LocalDateTime;
 import java.util.List;

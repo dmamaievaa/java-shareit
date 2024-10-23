@@ -1,4 +1,4 @@
-package ru.practicum.server.enums;
+package ru.practicum.server.booking;
 
 public enum Status {
     WAITING,

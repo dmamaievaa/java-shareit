@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.server.booking.controller.BookingController;
 import ru.practicum.server.booking.dto.BookingDto;
 import ru.practicum.server.booking.service.BookingService;
-import ru.practicum.server.enums.Status;
+import ru.practicum.server.booking.Status;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;

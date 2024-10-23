@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.server.enums.Status;
+import ru.practicum.server.booking.Status;
 import ru.practicum.server.item.model.Item;
 import ru.practicum.server.user.model.User;
 

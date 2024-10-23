@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.server.enums.Status;
+import ru.practicum.server.booking.Status;
 import ru.practicum.server.item.dto.ItemDto;
 import ru.practicum.server.user.dto.UserDto;
 

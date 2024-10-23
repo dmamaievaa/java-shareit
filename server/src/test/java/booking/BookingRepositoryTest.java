@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.server.ShareItServer;
 import ru.practicum.server.booking.model.Booking;
 import ru.practicum.server.booking.repository.BookingRepository;
-import ru.practicum.server.enums.Status;
+import ru.practicum.server.booking.Status;
 import ru.practicum.server.item.model.Item;
 import ru.practicum.server.item.repository.ItemRepository;
 import ru.practicum.server.user.model.User;

@@ -8,7 +8,7 @@ import ru.practicum.server.booking.handler.AllBookingHandler;
 import ru.practicum.server.booking.mapper.BookingMapper;
 import ru.practicum.server.booking.model.Booking;
 import ru.practicum.server.booking.repository.BookingRepository;
-import ru.practicum.server.enums.Status;
+import ru.practicum.server.booking.Status;
 import ru.practicum.server.exception.InvalidParamException;
 import ru.practicum.server.exception.NotFoundException;
 import ru.practicum.server.item.model.Item;
