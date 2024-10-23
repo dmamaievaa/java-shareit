@@ -13,6 +13,7 @@ import ru.practicum.server.booking.model.Booking;
 import ru.practicum.server.booking.repository.BookingRepository;
 import ru.practicum.server.booking.service.BookingServiceImpl;
 import ru.practicum.server.enums.Status;
+import ru.practicum.server.exception.InvalidParamException;
 import ru.practicum.server.item.model.Item;
 import ru.practicum.server.item.repository.ItemRepository;
 import ru.practicum.server.user.model.User;
@@ -21,6 +22,7 @@ import ru.practicum.server.user.repository.UserRepository;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = ShareItServer.class)
 @Transactional
@@ -95,6 +97,51 @@ public class BookingServiceImplTest {
 
         Booking updatedBooking = bookingRepository.findById(booking.getId()).orElseThrow();
         assertThat(updatedBooking.getStatus()).isEqualTo(Status.REJECTED);
+    }
+
+    @Test
+    void testApproveBookingRejected() {
+        BookingDto rejectedBooking = bookingService.approveBooking(booking.getId(), false, owner.getId());
+
+        assertThat(rejectedBooking.getStatus()).isEqualTo(Status.REJECTED);
+
+        Item updatedItem = itemRepository.findById(item.getId()).orElseThrow();
+        assertThat(updatedItem.getAvailable()).isFalse();
+    }
+
+    @Test
+    void testApproveBookingApproved() {
+        BookingDto approvedBooking = bookingService.approveBooking(booking.getId(), true, owner.getId());
+
+        assertThat(approvedBooking.getStatus()).isEqualTo(Status.APPROVED);
+
+        Item updatedItem = itemRepository.findById(item.getId()).orElseThrow();
+        assertThat(updatedItem.getAvailable()).isFalse();
+    }
+
+    @Test
+    void testCheckItemAvailabilityWhenAvailable() {
+        item.setAvailable(true);
+        itemRepository.save(item);
+
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(item.getId());
+
+        BookingDto createdBooking = bookingService.createBooking(bookingDto, booker.getId());
+        assertThat(createdBooking).isNotNull();
+    }
+
+    @Test
+    void testValidateBookingOwnerThrowsExceptionForNonOwner() {
+        User notOwner = new User();
+        notOwner.setName("Not Owner");
+        notOwner.setEmail("notowner@gmail.com");
+        notOwner = userRepository.save(notOwner);
+
+        User finalNonOwner = notOwner;
+        assertThrows(InvalidParamException.class, () ->
+                bookingService.approveBooking(booking.getId(), true, finalNonOwner.getId())
+        );
     }
 
     @Test

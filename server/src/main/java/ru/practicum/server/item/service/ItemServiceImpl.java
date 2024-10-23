@@ -39,8 +39,6 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final ItemRequestRepository itemRequestRepository;
 
-
-
     public List<ItemDto> findAll(Long userId) {
         List<Item> items = itemRepository.getAllByUserId(userId);
         return ItemMapper.toItemDtoList(items);
