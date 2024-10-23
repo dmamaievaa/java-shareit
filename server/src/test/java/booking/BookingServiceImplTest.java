@@ -14,6 +14,7 @@ import ru.practicum.server.booking.repository.BookingRepository;
 import ru.practicum.server.booking.service.BookingServiceImpl;
 import ru.practicum.server.booking.Status;
 import ru.practicum.server.exception.InvalidParamException;
+import ru.practicum.server.exception.NotFoundException;
 import ru.practicum.server.item.model.Item;
 import ru.practicum.server.item.repository.ItemRepository;
 import ru.practicum.server.user.model.User;
@@ -87,6 +88,49 @@ public class BookingServiceImplTest {
 
         Booking updatedBooking = bookingRepository.findById(booking.getId()).orElseThrow();
         assertThat(updatedBooking.getStatus()).isEqualTo(Status.APPROVED);
+    }
+
+    @Test
+    void testCreateBookingWithNonExistentUser() {
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(item.getId());
+
+        assertThrows(NotFoundException.class, () -> bookingService.createBooking(bookingDto, 999L));
+    }
+
+    @Test
+    void testCreateBookingWithNonExistentItem() {
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(999L);
+
+        assertThrows(NotFoundException.class, () -> bookingService.createBooking(bookingDto, booker.getId()));
+    }
+
+    @Test
+    void testCreateBookingWithUnavailableItem() {
+        item.setAvailable(false);
+        itemRepository.save(item);
+
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(item.getId());
+
+        assertThrows(RuntimeException.class, () -> bookingService.createBooking(bookingDto, booker.getId()));
+    }
+
+    @Test
+    void testApproveBookingByNonOwner() {
+        User notOwner = new User();
+        notOwner.setName("Not Owner");
+        notOwner.setEmail("notowner@gmail.com");
+        notOwner = userRepository.save(notOwner);
+
+        User finalNotOwner = notOwner;
+        assertThrows(InvalidParamException.class, () -> bookingService.approveBooking(booking.getId(), true, finalNotOwner.getId()));
+    }
+
+    @Test
+    void testGetBookingsWithInvalidState() {
+        assertThrows(InvalidParamException.class, () -> bookingService.getBookingsForCurrentUser(booker.getId(), "INVALID_STATE"));
     }
 
     @Test
