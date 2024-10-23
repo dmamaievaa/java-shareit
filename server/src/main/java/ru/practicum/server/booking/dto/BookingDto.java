@@ -30,12 +30,12 @@ public class BookingDto {
     Long id;
 
     @NotNull(message = "Start date cannot be null")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")  // Добавлены секунды
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime start;
 
     @NotNull(message = "End date cannot be null")
     @Future(message = "End date must be in the future")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")  // Добавлены секунды
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime end;
 
     @NotNull(message = "Item ID cannot be null")

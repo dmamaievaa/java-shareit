@@ -15,6 +15,8 @@ import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 import ru.practicum.server.user.service.UserServiceImpl;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -95,5 +97,69 @@ public class UserServiceImplTest {
         assertThatThrownBy(() -> userService.update(999L, updateDto))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("User not found");
+    }
+
+    @Test
+    void testDeleteExistingUser() {
+        Boolean result = userService.delete(user.getId());
+        assertThat(result).isTrue();
+        assertThat(userRepository.existsById(user.getId())).isFalse();
+    }
+
+    @Test
+    void testDeleteNonExistentUser() {
+        assertThatThrownBy(() -> userService.delete(999L))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("User not found");
+    }
+
+    @Test
+    void testCreateUser() {
+        UserDto userDto = new UserDto();
+        userDto.setName("New User");
+        userDto.setEmail("new.user@example.com");
+
+        UserDto createdUser = userService.create(userDto);
+
+        assertThat(createdUser.getName()).isEqualTo("New User");
+        assertThat(createdUser.getEmail()).isEqualTo("new.user@example.com");
+        assertThat(userRepository.existsById(createdUser.getId())).isTrue();
+    }
+
+    @Test
+    void testGetExistingUser() {
+        UserDto fetchedUser = userService.get(user.getId());
+
+        assertThat(fetchedUser.getName()).isEqualTo("Initial User");
+        assertThat(fetchedUser.getEmail()).isEqualTo("initial.user@example.com");
+    }
+
+    @Test
+    void testGetNonExistentUserThrowsException() {
+        assertThatThrownBy(() -> userService.get(999L))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("User not found");
+    }
+
+    @Test
+    void testFindAllUsers() {
+        User anotherUser = new User();
+        anotherUser.setName("Another User");
+        anotherUser.setEmail("another.user@example.com");
+        userRepository.save(anotherUser);
+
+        List<UserDto> users = userService.findAll();
+
+        assertThat(users).hasSize(2);
+        assertThat(users).extracting(UserDto::getName)
+                .containsExactlyInAnyOrder("Initial User", "Another User");
+    }
+
+    @Test
+    void testFindAllNoUsers() {
+        userRepository.deleteAll();
+        List<UserDto> users = userService.findAll();
+
+        assertThat(users).isEmpty();
     }
 }

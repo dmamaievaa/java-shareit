@@ -151,6 +151,6 @@ class UserControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", is(0))); // Проверка на пустой список
+                .andExpect(jsonPath("$.length()", is(0)));
     }
 }

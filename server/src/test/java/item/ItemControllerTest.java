@@ -209,6 +209,6 @@ class ItemControllerTest {
                         .param("text", "")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", is(0)));  // Пустой список
+                .andExpect(jsonPath("$.length()", is(0)));
     }
 }

@@ -14,12 +14,15 @@ import ru.practicum.server.exception.InvalidParamException;
 import ru.practicum.server.exception.NotFoundException;
 import ru.practicum.server.item.dto.CommentDto;
 import ru.practicum.server.item.dto.ItemDto;
+import ru.practicum.server.item.model.Comment;
 import ru.practicum.server.item.model.Item;
+import ru.practicum.server.item.repository.CommentRepository;
 import ru.practicum.server.item.repository.ItemRepository;
 import ru.practicum.server.item.service.ItemServiceImpl;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,6 +45,9 @@ public class ItemServiceImplTest {
 
     @Autowired
     private BookingRepository bookingRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     private User user;
 
@@ -143,6 +149,25 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    void testGetItem() {
+        Item item = new Item();
+        item.setName("Item to get");
+        item.setDescription("Description for item to get");
+        item.setOwner(user);
+        item = itemRepository.save(item);
+
+        ItemDto foundItem = itemService.get(item.getId());
+
+        assertThat(foundItem.getName()).isEqualTo("Item to get");
+        assertThat(foundItem.getDescription()).isEqualTo("Description for item to get");
+    }
+
+    @Test
+    void testGetNonExistentItemThrowsException() {
+        assertThrows(NotFoundException.class, () -> itemService.get(999L));
+    }
+
+    @Test
     void testDeleteItem() {
         Item item = new Item();
         item.setName("Item to delete");
@@ -211,6 +236,33 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    void testAddCommentForBookedItem() {
+        Item item = new Item();
+        item.setName("Item for booked comment");
+        item.setDescription("Item for comment test");
+        item.setOwner(user);
+        item.setAvailable(true);
+        item = itemRepository.save(item);
+
+        Booking booking = new Booking();
+        booking.setItem(item);
+        booking.setBooker(user);
+        booking.setStart(LocalDateTime.now().minusDays(2));
+        booking.setEnd(LocalDateTime.now().minusDays(1));
+        booking.setStatus(Status.APPROVED);
+        bookingRepository.save(booking);
+
+        CommentDto commentDto = new CommentDto();
+        commentDto.setText("Excellent item!");
+
+        CommentDto addedComment = itemService.addComment(item.getId(), user.getId(), commentDto);
+
+        assertThat(addedComment.getText()).isEqualTo("Excellent item!");
+        assertThat(addedComment.getAuthorName()).isEqualTo(user.getName());
+    }
+
+
+    @Test
     void testAddCommentByUserWhoDidNotBookItemThrowsException() {
         Item item = new Item();
         item.setName("Item without booking");
@@ -229,4 +281,32 @@ public class ItemServiceImplTest {
         Item finalItem = item;
         assertThrows(InvalidParamException.class, () -> itemService.addComment(finalItem.getId(), anotherUser.getId(), commentDto));
     }
+
+    @Test
+    void testGetComments() {
+        Item item = new Item();
+        item.setName("Item with comments");
+        item.setDescription("Description for item with comments");
+        item.setOwner(user);
+        item = itemRepository.save(item);
+
+        Comment comment = new Comment();
+        comment.setText("Nice item!");
+        comment.setAuthor(user);
+        comment.setItem(item);
+        comment.setCreated(Instant.now());
+        commentRepository.save(comment);
+
+        List<CommentDto> comments = itemService.getComments(item.getId());
+
+        assertThat(comments).hasSize(1);
+        assertThat(comments.getFirst().getText()).isEqualTo("Nice item!");
+    }
+
+    @Test
+    void testGetCommentsForNonExistentItem() {
+        List<CommentDto> comments = itemService.getComments(999L);
+        assertThat(comments).isEmpty();
+    }
+
 }
