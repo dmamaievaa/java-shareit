@@ -55,7 +55,7 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toBookingDto(savedBooking);
     }
 
-    private void checkItemAvailability(Item item) {
+    public void checkItemAvailability(Item item) {
         if (!item.getAvailable()) {
             if (item.getLastBooking() != null && item.getLastBooking().isBefore(Instant.now())) {
                 item.setAvailable(true);

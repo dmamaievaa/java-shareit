@@ -2,6 +2,10 @@ package exception;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.server.exception.ErrorResponse;
 import ru.practicum.server.exception.ForbiddenException;
 import ru.practicum.server.exception.GlobalExceptionHandler;
@@ -10,7 +14,11 @@ import ru.practicum.server.exception.InvalidParamException;
 import ru.practicum.server.exception.NotFoundException;
 import ru.practicum.server.exception.UserAlreadyExists;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 
 public class GlobalExceptionHandlerTest {
@@ -20,6 +28,28 @@ public class GlobalExceptionHandlerTest {
     @BeforeEach
     void setUp() {
         globalExceptionHandler = new GlobalExceptionHandler();
+    }
+
+    @Test
+    void handleValidationExceptions_shouldReturnBadRequestResponse() {
+
+        String fieldName = "email";
+        String errorMessage = "must be a valid email";
+        List<FieldError> fieldErrors = new ArrayList<>();
+        fieldErrors.add(new FieldError("user", fieldName, errorMessage));
+
+        BindingResult bindingResult = mock(BindingResult.class);
+        Mockito.when(bindingResult.getFieldErrors()).thenReturn(fieldErrors);
+
+        MethodArgumentNotValidException exception = new MethodArgumentNotValidException(
+                null,
+                bindingResult
+        );
+
+        ErrorResponse response = globalExceptionHandler.handleValidationExceptions(exception);
+
+        assertEquals("Validation Failed", response.getError());
+        assertEquals("email: must be a valid email; ", response.getMessage());
     }
 
     @Test

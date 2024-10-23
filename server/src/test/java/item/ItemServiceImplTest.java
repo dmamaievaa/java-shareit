@@ -19,6 +19,8 @@ import ru.practicum.server.item.model.Item;
 import ru.practicum.server.item.repository.CommentRepository;
 import ru.practicum.server.item.repository.ItemRepository;
 import ru.practicum.server.item.service.ItemServiceImpl;
+import ru.practicum.server.request.model.ItemRequest;
+import ru.practicum.server.request.repository.ItemRequestRepository;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 
@@ -28,6 +30,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static ru.practicum.server.utils.GlobalConstants.REQUEST_NOT_FOUND;
 
 @SpringBootTest(classes = ShareItServer.class)
 @Transactional
@@ -48,6 +51,9 @@ public class ItemServiceImplTest {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private ItemRequestRepository itemRequestRepository;
 
     private User user;
 
@@ -309,4 +315,40 @@ public class ItemServiceImplTest {
         assertThat(comments).isEmpty();
     }
 
+    @Test
+    void testCreateItemWithRequestId() {
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setDescription("Request for an item");
+        itemRequest.setRequestor(user);
+        itemRequest = itemRequestRepository.save(itemRequest);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("New Item with Request");
+        itemDto.setDescription("Item description with request");
+        itemDto.setAvailable(true);
+        itemDto.setRequestId(itemRequest.getId());
+
+        ItemDto createdItem = itemService.create(user.getId(), itemDto);
+
+        assertThat(createdItem.getName()).isEqualTo("New Item with Request");
+        assertThat(createdItem.getDescription()).isEqualTo("Item description with request");
+        assertThat(createdItem.getAvailable()).isTrue();
+        assertThat(createdItem.getRequestId()).isEqualTo(itemRequest.getId());
+
+        Item itemFromDb = itemRepository.findById(createdItem.getId()).orElseThrow();
+        assertThat(itemFromDb.getRequest()).isNotNull();
+        assertThat(itemFromDb.getRequest().getId()).isEqualTo(itemRequest.getId());
+    }
+
+    @Test
+    void testCreateItemWithNonExistentRequestIdThrowsException() {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("New Item with Non-Existent Request");
+        itemDto.setDescription("Item description");
+        itemDto.setAvailable(true);
+        itemDto.setRequestId(999L);
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> itemService.create(user.getId(), itemDto));
+        assertThat(exception.getMessage()).isEqualTo(REQUEST_NOT_FOUND);
+    }
 }

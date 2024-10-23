@@ -9,6 +9,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.server.ShareItServer;
 import ru.practicum.server.booking.dto.BookingDto;
+import ru.practicum.server.booking.handler.AllBookingHandler;
 import ru.practicum.server.booking.model.Booking;
 import ru.practicum.server.booking.repository.BookingRepository;
 import ru.practicum.server.booking.service.BookingServiceImpl;
@@ -20,10 +21,13 @@ import ru.practicum.server.item.repository.ItemRepository;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static ru.practicum.server.utils.GlobalConstants.BOOKING_NOT_FOUND;
 
 @SpringBootTest(classes = ShareItServer.class)
 @Transactional
@@ -35,6 +39,7 @@ public class BookingServiceImplTest {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final AllBookingHandler allBookingHandler;
 
     private User owner;
     private User booker;
@@ -91,6 +96,14 @@ public class BookingServiceImplTest {
     }
 
     @Test
+    void testApproveBookingNotFound() {
+        Long nonExistentBookingId = 999L;
+
+        NotFoundException thrown = assertThrows(NotFoundException.class, () -> bookingService.approveBooking(nonExistentBookingId, true, owner.getId()));
+        assertThat(thrown.getMessage()).contains(BOOKING_NOT_FOUND + nonExistentBookingId);
+    }
+
+    @Test
     void testCreateBookingWithNonExistentUser() {
         BookingDto bookingDto = new BookingDto();
         bookingDto.setItemId(item.getId());
@@ -131,6 +144,25 @@ public class BookingServiceImplTest {
     @Test
     void testGetBookingsWithInvalidState() {
         assertThrows(InvalidParamException.class, () -> bookingService.getBookingsForCurrentUser(booker.getId(), "INVALID_STATE"));
+    }
+
+    @Test
+    void testCheckItemAvailabilitySetsItemAvailable() {
+
+        Item unavailableItem = new Item();
+        unavailableItem.setName("Unavailable Item");
+        unavailableItem.setDescription("Item description");
+        unavailableItem.setAvailable(false);
+
+        Instant lastBookingTime = Instant.now().minus(1, ChronoUnit.DAYS);
+        unavailableItem.setLastBooking(lastBookingTime);
+
+        unavailableItem = itemRepository.save(unavailableItem);
+
+        bookingService.checkItemAvailability(unavailableItem);
+
+        Item updatedItem = itemRepository.findById(unavailableItem.getId()).orElseThrow();
+        assertThat(updatedItem.getAvailable()).isTrue();
     }
 
     @Test
