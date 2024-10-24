@@ -22,6 +22,7 @@ import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -70,6 +71,9 @@ public class BookingServiceImplTest {
         booking.setBooker(booker);
         booking.setOwner(owner);
         booking.setStatus(Status.WAITING);
+        booking.setAvailable(true);
+        booking.setStart(LocalDateTime.now());
+        booking.setEnd(LocalDateTime.now().plusDays(1));
         booking = bookingRepository.save(booking);
     }
 
@@ -77,6 +81,8 @@ public class BookingServiceImplTest {
     void testCreateBookingSuccess() {
         BookingDto bookingDto = new BookingDto();
         bookingDto.setItemId(item.getId());
+        bookingDto.setStart(LocalDateTime.now());
+        bookingDto.setEnd(LocalDateTime.now().plusDays(1));
 
         BookingDto createdBooking = bookingService.createBooking(bookingDto, booker.getId());
 
@@ -156,6 +162,7 @@ public class BookingServiceImplTest {
 
         Instant lastBookingTime = Instant.now().minus(1, ChronoUnit.DAYS);
         unavailableItem.setLastBooking(lastBookingTime);
+        unavailableItem.setOwner(owner);
 
         unavailableItem = itemRepository.save(unavailableItem);
 
@@ -202,6 +209,8 @@ public class BookingServiceImplTest {
 
         BookingDto bookingDto = new BookingDto();
         bookingDto.setItemId(item.getId());
+        bookingDto.setStart(LocalDateTime.now());
+        bookingDto.setEnd(LocalDateTime.now().plusDays(1));
 
         BookingDto createdBooking = bookingService.createBooking(bookingDto, booker.getId());
         assertThat(createdBooking).isNotNull();
@@ -232,6 +241,8 @@ public class BookingServiceImplTest {
     void testGetBookingsForCurrentUserSuccess() {
         BookingDto bookingDto = new BookingDto();
         bookingDto.setItemId(item.getId());
+        bookingDto.setStart(LocalDateTime.now());
+        bookingDto.setEnd(LocalDateTime.now().plusDays(1));
         bookingService.createBooking(bookingDto, booker.getId());
 
         List<BookingDto> bookings = bookingService.getBookingsForCurrentUser(booker.getId(), "ALL");
@@ -244,6 +255,8 @@ public class BookingServiceImplTest {
     void testGetBookingsForOwnerSuccess() {
         BookingDto bookingDto = new BookingDto();
         bookingDto.setItemId(item.getId());
+        bookingDto.setStart(LocalDateTime.now());
+        bookingDto.setEnd(LocalDateTime.now().plusDays(1));
         bookingService.createBooking(bookingDto, booker.getId());
 
         List<BookingDto> bookings = bookingService.getBookingsForOwner(owner.getId(), "ALL");

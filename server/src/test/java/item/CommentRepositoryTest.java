@@ -14,6 +14,7 @@ import ru.practicum.server.item.repository.ItemRepository;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,6 +54,7 @@ public class CommentRepositoryTest {
         comment.setText("Great Item!");
         comment.setItem(item);
         comment.setAuthor(owner);
+        comment.setCreated(Instant.now());
         commentRepository.save(comment);
     }
 

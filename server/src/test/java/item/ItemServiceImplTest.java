@@ -57,6 +57,8 @@ public class ItemServiceImplTest {
 
     private User user;
 
+    private User owner;
+
     @BeforeEach
     void setUp() {
         user = new User();
@@ -71,12 +73,14 @@ public class ItemServiceImplTest {
         item1.setName("Item 1");
         item1.setDescription("Item description 1");
         item1.setOwner(user);
+        item1.setAvailable(true);
         itemRepository.save(item1);
 
         Item item2 = new Item();
         item2.setName("Item 2");
         item2.setDescription("Item description 2");
         item2.setOwner(user);
+        item2.setAvailable(true);
         itemRepository.save(item2);
 
         List<ItemDto> items = itemService.findAll(user.getId());
@@ -104,6 +108,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = new ItemDto();
         itemDto.setName("New Item");
         itemDto.setDescription("Item description");
+        itemDto.setAvailable(true);
 
         assertThrows(NotFoundException.class, () -> itemService.create(999L, itemDto));
     }
@@ -114,6 +119,7 @@ public class ItemServiceImplTest {
         item.setName("Old Item");
         item.setDescription("Old description");
         item.setOwner(user);
+        item.setAvailable(true);
         item = itemRepository.save(item);
 
         ItemDto updatedItemDto = new ItemDto();
@@ -130,6 +136,7 @@ public class ItemServiceImplTest {
     void testUpdateItemWithNonExistentItemThrowsException() {
         ItemDto itemDto = new ItemDto();
         itemDto.setName("Updated Item");
+        itemDto.setAvailable(true);
 
         assertThrows(NotFoundException.class, () -> itemService.update(user.getId(), 999L, itemDto));
     }
@@ -140,6 +147,7 @@ public class ItemServiceImplTest {
         item.setName("Item");
         item.setDescription("Item description");
         item.setOwner(user);
+        item.setAvailable(true);
         item = itemRepository.save(item);
 
         User anotherUser = new User();
@@ -149,6 +157,7 @@ public class ItemServiceImplTest {
 
         ItemDto itemDto = new ItemDto();
         itemDto.setName("Updated Item");
+        itemDto.setAvailable(true);
 
         Item finalItem = item;
         assertThrows(NotFoundException.class, () -> itemService.update(anotherUser.getId(), finalItem.getId(), itemDto));
@@ -160,6 +169,7 @@ public class ItemServiceImplTest {
         item.setName("Item to get");
         item.setDescription("Description for item to get");
         item.setOwner(user);
+        item.setAvailable(true);
         item = itemRepository.save(item);
 
         ItemDto foundItem = itemService.get(item.getId());
@@ -179,6 +189,7 @@ public class ItemServiceImplTest {
         item.setName("Item to delete");
         item.setDescription("Item description");
         item.setOwner(user);
+        item.setAvailable(true);
         item = itemRepository.save(item);
 
         Boolean result = itemService.delete(item.getId());
@@ -209,19 +220,26 @@ public class ItemServiceImplTest {
 
     @Test
     void testAddComment() {
+        owner = new User();
+        owner.setName("Test owner");
+        owner.setEmail("test.owner@example.com");
+        owner = userRepository.save(owner);
+
         Item item = new Item();
         item.setName("Commented Item");
         item.setDescription("Item with comment");
-        item.setOwner(user);
+        item.setOwner(owner);
         item.setAvailable(true);
         item = itemRepository.save(item);
 
         Booking booking = new Booking();
         booking.setItem(item);
         booking.setBooker(user);
+        booking.setOwner(owner);
         booking.setStart(LocalDateTime.now().minusDays(2));
         booking.setEnd(LocalDateTime.now().minusDays(1));
         booking.setStatus(Status.APPROVED);
+        booking.setAvailable(true);
         bookingRepository.save(booking);
 
         CommentDto commentDto = new CommentDto();
@@ -253,9 +271,11 @@ public class ItemServiceImplTest {
         Booking booking = new Booking();
         booking.setItem(item);
         booking.setBooker(user);
+        booking.setOwner(user);
         booking.setStart(LocalDateTime.now().minusDays(2));
         booking.setEnd(LocalDateTime.now().minusDays(1));
         booking.setStatus(Status.APPROVED);
+        booking.setAvailable(true);
         bookingRepository.save(booking);
 
         CommentDto commentDto = new CommentDto();
@@ -274,6 +294,7 @@ public class ItemServiceImplTest {
         item.setName("Item without booking");
         item.setDescription("Item not booked by user");
         item.setOwner(user);
+        item.setAvailable(true);
         item = itemRepository.save(item);
 
         User anotherUser = new User();
@@ -294,6 +315,7 @@ public class ItemServiceImplTest {
         item.setName("Item with comments");
         item.setDescription("Description for item with comments");
         item.setOwner(user);
+        item.setAvailable(true);
         item = itemRepository.save(item);
 
         Comment comment = new Comment();

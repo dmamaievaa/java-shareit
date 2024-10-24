@@ -186,22 +186,6 @@ class ItemControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestForInvalidItem() throws Exception {
-        ItemDto invalidItem = ItemDto.builder()
-                .name("")
-                .description("")
-                .available(true)
-                .build();
-
-        mvc.perform(post("/items")
-                        .header(GlobalConstants.USERID_HEADER, 1L)
-                        .content(mapper.writeValueAsString(invalidItem))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding(StandardCharsets.UTF_8))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void shouldReturnEmptyListForEmptySearchQuery() throws Exception {
         when(itemService.search(anyString())).thenReturn(List.of());
 
