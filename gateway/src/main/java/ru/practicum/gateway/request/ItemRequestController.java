@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.practicum.gateway.request.dto.ItemRequestDto;
+import ru.practicum.gateway.utils.GlobalConstants;
 
 @Controller
 @RequestMapping(path = "/requests")
@@ -22,13 +23,13 @@ public class ItemRequestController {
 
     @PostMapping
     public ResponseEntity<Object> create(@Valid @RequestBody ItemRequestDto itemRequestDto,
-                                                    @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+                                                    @RequestHeader(GlobalConstants.USERID_HEADER) Long userId) {
         log.info("Started creating new request by user with id = {}", userId);
         return itemRequestClient.create(userId, itemRequestDto);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getAllByUser(@RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+    public ResponseEntity<Object> getAllByUser(@RequestHeader(GlobalConstants.USERID_HEADER) Long userId) {
         log.info("Started getting all request with item by user with id = {}", userId);
         return itemRequestClient.getAllByUser(userId);
     }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.gateway.item.dto.CommentDto;
 import ru.practicum.gateway.item.dto.ItemDto;
+import ru.practicum.gateway.utils.GlobalConstants;
 
 @Controller
 @RequestMapping(path = "/items")
@@ -25,7 +26,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> create(@Valid @RequestBody ItemDto itemDto,
-                                             @RequestHeader(value = "X-Sharer-User-Id") Long ownerId) {
+                                             @RequestHeader(GlobalConstants.USERID_HEADER) Long ownerId) {
         log.info("Started creating new item");
         final ResponseEntity<Object> item = itemClient.create(ownerId, itemDto);
         log.info("Finished creating new item");
@@ -35,7 +36,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> update(@RequestBody ItemDto itemDto,
                                          @PathVariable(value = "itemId") Long itemId,
-                                         @RequestHeader(value = "X-Sharer-User-Id") Long ownerId) {
+                                         @RequestHeader(GlobalConstants.USERID_HEADER) Long ownerId) {
         log.info("Started updating item with id {}", itemId);
         final ResponseEntity<Object> item = itemClient.update(itemId, ownerId, itemDto);
         log.info("Finished updating item with id {}", itemId);
@@ -43,7 +44,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> findAll(@RequestHeader(value = "X-Sharer-User-Id") Long ownerId) {
+    public ResponseEntity<Object> findAll(@RequestHeader(GlobalConstants.USERID_HEADER) Long ownerId) {
         log.info("Started getting all items");
         final ResponseEntity<Object> item = itemClient.findAll(ownerId);
         log.info("Finished getting all items");
@@ -52,7 +53,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ResponseEntity<Object> getById(@PathVariable(value = "itemId") Long itemId,
-                                              @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+                                              @RequestHeader(GlobalConstants.USERID_HEADER) Long userId) {
         log.info("Started getting item by id = {}", itemId);
         final ResponseEntity<Object> item = itemClient.getItemById(itemId, userId);
         log.info("Finished getting item by id = {}", itemId);
@@ -61,7 +62,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public ResponseEntity<Object> search(@RequestParam(value = "text") String text,
-                                              @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+                                              @RequestHeader(GlobalConstants.USERID_HEADER) Long userId) {
         log.info("Started searching item contained text: {}", text);
         final ResponseEntity<Object> item = itemClient.search(userId, text);
         log.info("Finished searching item contained text: {}", text);
@@ -71,7 +72,7 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> addComment(@Valid @RequestBody CommentDto commentDto,
                                                 @PathVariable(name = "itemId") Long itemId,
-                                                @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+                                                @RequestHeader(GlobalConstants.USERID_HEADER) Long userId) {
         log.info("Started creating comment with itemId = {}", itemId);
         final ResponseEntity<Object> comment = itemClient.addComment(itemId, userId, commentDto);
         log.info("Generated creating comment with itemId = {}", itemId);
